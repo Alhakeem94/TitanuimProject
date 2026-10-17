@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="Shared/Shared.csproj" Id="bd0ceba4-4532-47d4-8536-9eb2775647ec" />
   <Project Path="TitaniumBackendApi/TitaniumBackendApi.csproj" />
+  <Project Path="TitanuimFrontend/TitanuimFrontend.Client/TitanuimFrontend.Client.csproj" Id="b6ae7f1c-405f-4873-97fe-6f0a94244fde" />
+  <Project Path="TitanuimFrontend/TitanuimFrontend/TitanuimFrontend.csproj" Id="9f11b745-e7cc-4dea-a9fe-3d3f6a3b3f42" />
 </Solution>
