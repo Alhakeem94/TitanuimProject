@@ -33,6 +33,8 @@ namespace TitaniumBackendApi
 
             app.MapControllers();
 
+            Console.WriteLine(" this is first API project");
+
             app.Run();
         }
     }
