@@ -22,5 +22,11 @@ namespace TitaniumBackendApi.Controllers
             })
             .ToArray();
         }
+
+        [HttpGet("/welcome")]
+        public string Welcome([FromQuery] string name)
+        {
+            return $"Hello {name}, welcome to the Titanium Backend API!";
+        }
     }
 }
