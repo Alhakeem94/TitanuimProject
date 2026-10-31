@@ -1,7 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using TitaniumBackendApi.Data;
-
+using TitaniumBackendApi.Interfaces;
 namespace TitaniumBackendApi
 {
     public class Program
@@ -15,7 +15,7 @@ namespace TitaniumBackendApi
             builder.Services.AddDbContext<AmanaDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")) 
             );
-
+            builder.Services.AddScoped<ICustomers, CustomersRepository>();
 
 
 

@@ -13,6 +13,7 @@ namespace Shared.Models
         public string FullName { get; set; }
 
         [MaxLength(12)]
+        [MinLength(12)]
         public string NationalId { get; set; }
 
         [MaxLength(15)]
