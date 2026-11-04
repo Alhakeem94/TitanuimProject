@@ -22,6 +22,40 @@ namespace TitaniumBackendApi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Shared.Models.Account", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OpenedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("AccountsTable");
+                });
+
             modelBuilder.Entity("Shared.Models.CustomersModel", b =>
                 {
                     b.Property<int>("Id")
@@ -31,7 +65,9 @@ namespace TitaniumBackendApi.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -45,7 +81,8 @@ namespace TitaniumBackendApi.Migrations
                     b.Property<string>("NationalId")
                         .IsRequired()
                         .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)");
+                        .HasColumnType("nchar(12)")
+                        .IsFixedLength();
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -54,7 +91,27 @@ namespace TitaniumBackendApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CustomersTable");
+                    b.HasIndex("NationalId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Customers_NationalId");
+
+                    b.ToTable("Customers", (string)null);
+                });
+
+            modelBuilder.Entity("Shared.Models.Account", b =>
+                {
+                    b.HasOne("Shared.Models.CustomersModel", "Customer")
+                        .WithMany("CustomerAccounts")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Shared.Models.CustomersModel", b =>
+                {
+                    b.Navigation("CustomerAccounts");
                 });
 #pragma warning restore 612, 618
         }
