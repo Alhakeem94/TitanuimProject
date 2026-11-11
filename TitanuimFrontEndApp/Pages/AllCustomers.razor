@@ -1,0 +1,66 @@
+﻿@page "/allcustomers"
+
+@using System.Net.Http.Json
+@using Shared.DTOs
+@inject HttpClient httpClient
+
+
+
+
+@if(IsLoading)
+{
+    <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    <h3>We are fetching your data</h3>
+}else
+{
+    <MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>NationalId</MudTh>
+            <MudTh>Phone Number</MudTh>
+            <MudTh>Email</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.FullName</MudTd>
+            <MudTd DataLabel="NationalId">@context.NationalId</MudTd>
+            <MudTd DataLabel="Phone Number">@context.PhoneNumber</MudTd>
+            <MudTd DataLabel="Email" HideSmall="_hidePosition">@context.Email</MudTd>
+        </RowTemplate>
+    </MudTable>
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@code {
+
+    private List<CustomerDto> Elements = new List<CustomerDto>();
+    public bool IsLoading { get; set; } = true;
+    private bool _hidePosition;
+    private bool _loading;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Elements = await httpClient.GetFromJsonAsync<List<CustomerDto>>("https://localhost:7197/api/Customers/GetAllCustomers");
+        IsLoading = false;
+    }
+
+
+
+
+}

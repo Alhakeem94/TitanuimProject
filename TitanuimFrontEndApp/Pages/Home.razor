@@ -1,0 +1,55 @@
+﻿@page "/"
+
+<PageTitle>Titanuim</PageTitle>
+
+
+
+
+
+
+
+<div class="row">
+    <div class="col-6">
+        <input class="form-control"  type="number" placeholder="Enter first Number" @bind-value="firstValue" />
+    </div>
+    <div class="col-6">
+        <input class="form-control" type="number" placeholder="Enter second number" @bind-value="SecondValue" />
+    </div>
+</div>
+
+
+<button @onclick="SumFunction">Sum (+)</button>
+<button>Sub (-)</button>
+<button>Mult (*)</button>
+<button>Devi (/)</button>
+
+<h4>the result is : @Result</h4>
+
+
+@code{
+
+    public int firstValue { get; set; } 
+    public int SecondValue { get; set; }
+    public int Result { get; set; }
+
+
+
+    private void SumFunction()
+    {
+        Result = firstValue + SecondValue;
+    }
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+

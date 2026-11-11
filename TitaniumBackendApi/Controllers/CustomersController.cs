@@ -63,7 +63,11 @@ namespace TitaniumBackendApi.Controllers
 
 
 
-
+        [HttpGet("GetAllCustomers")]
+        public async Task<ActionResult> FetchAllCustomers()
+        {
+            return Ok(await _Customers.getAllCustomers());
+        }
 
 
 

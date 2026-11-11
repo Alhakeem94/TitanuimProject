@@ -1,0 +1,22 @@
+﻿@inherits LayoutComponentBase
+
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+
+<MudLayout>
+    <MudAppBar>
+        Titanium Application FE
+    </MudAppBar>
+    <MudDrawer Open="true" style="background-color:navy">
+        <NavMenu />
+    </MudDrawer>
+    <MudMainContent >
+        <div style="padding: 20px;">
+            @Body
+        </div>
+    </MudMainContent>
+</MudLayout>

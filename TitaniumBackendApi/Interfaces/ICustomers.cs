@@ -14,6 +14,9 @@ namespace TitaniumBackendApi.Interfaces
         Task<CustomersModel> GetCustomerByNationalId(string Nationalid);
         Task<CustomerDto> GetCustomerById(int CustomerId);
         Task<GeneralResponse> AddNewCustomer(CustomersModel AddedCustomerObject);
+        Task<List<CustomerDto>> getAllCustomers();
+
+
     }
 
 
@@ -38,6 +41,18 @@ namespace TitaniumBackendApi.Interfaces
             };
         }
 
+        public async Task<List<CustomerDto>> getAllCustomers()
+        {
+            return await _Db.CustomersTable.Select(a=> new CustomerDto
+            {
+                Email = a.Email,
+                FullName = a.FullName,
+                NationalId = a.NationalId,
+                PhoneNumber = a.PhoneNumber
+            }).ToListAsync();
+
+        }
+
         public async Task<CustomerDto> GetCustomerById(int CustomerId)
         {
             var CustomerDetails = await _Db.CustomersTable.FirstOrDefaultAsync(a => a.Id == CustomerId);
@@ -58,8 +73,6 @@ namespace TitaniumBackendApi.Interfaces
                 return DTO;
             }
         }
-
-
 
         public async Task<CustomersModel> GetCustomerByNationalId(string Nationalid)
         {

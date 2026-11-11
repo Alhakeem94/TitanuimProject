@@ -1,4 +1,4 @@
-
+﻿
 using Microsoft.EntityFrameworkCore;
 using TitaniumBackendApi.Data;
 using TitaniumBackendApi.Interfaces;
@@ -20,6 +20,18 @@ namespace TitaniumBackendApi
 
 
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("FEApp", policy => policy.WithOrigins("https://localhost:7168", "http://localhost:5263")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                );
+            });
+
+
+
+
+
             var app = builder.Build();
 
 
@@ -35,6 +47,8 @@ namespace TitaniumBackendApi
 
 
             app.UseHttpsRedirection();
+
+            app.UseCors("FEApp");
 
             app.UseAuthorization();
 

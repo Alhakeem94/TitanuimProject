@@ -1,0 +1,168 @@
+@page "/customers"
+@using Shared.DTOs
+@using Shared.Models
+@using Shared.Responses
+@using TitanuimFrontEndApp.Services
+@inject CustomersApiService CustomersApi
+
+<PageTitle>Customers</PageTitle>
+
+<h1>Customers</h1>
+<p>This component sends requests to the TitaniumBackendApi <code>CustomersController</code>.</p>
+
+<div class="row g-4">
+
+    @* ---------- Add a new customer (POST api/Customers/AddNewCustomer) ---------- *@
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Add New Customer</strong>
+                <small class="text-muted ms-2">POST api/Customers/AddNewCustomer</small>
+            </div>
+            <div class="card-body">
+                <EditForm Model="newCustomer" OnValidSubmit="HandleAddCustomer">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+
+                    <div class="mb-3">
+                        <label class="form-label" for="fullName">Full Name</label>
+                        <InputText id="fullName" class="form-control" @bind-Value="newCustomer.FullName" />
+                        <ValidationMessage For="() => newCustomer.FullName" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="nationalId">National ID (12 digits)</label>
+                        <InputText id="nationalId" class="form-control" @bind-Value="newCustomer.NationalId" />
+                        <ValidationMessage For="() => newCustomer.NationalId" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="phone">Phone Number</label>
+                        <InputText id="phone" class="form-control" @bind-Value="newCustomer.PhoneNumber" />
+                        <ValidationMessage For="() => newCustomer.PhoneNumber" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email (optional)</label>
+                        <InputText id="email" class="form-control" @bind-Value="newCustomer.Email" />
+                        <ValidationMessage For="() => newCustomer.Email" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                        @if (isSaving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        }
+                        Add Customer
+                    </button>
+                </EditForm>
+
+                @if (addResult is not null)
+                {
+                    <div class="alert mt-3 @(addResult.IsSuccess ? "alert-success" : "alert-danger")" role="alert">
+                        @addResult.Message
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ---------- Look up a customer (GET api/Customers/GetCustomerDetails) ---------- *@
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Get Customer Details</strong>
+                <small class="text-muted ms-2">GET api/Customers/GetCustomerDetails?CustomerId=</small>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Customer Id</span>
+                    <input type="number" class="form-control" min="1" @bind="lookupCustomerId" />
+                    <button class="btn btn-outline-secondary" @onclick="HandleGetCustomer" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        }
+                        Search
+                    </button>
+                </div>
+
+                @if (lookupError is not null)
+                {
+                    <div class="alert alert-danger" role="alert">@lookupError</div>
+                }
+                else if (foundCustomer is not null)
+                {
+                    @if (string.IsNullOrEmpty(foundCustomer.NationalId))
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            No customer found with Id @lookupCustomerId.
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-sm table-striped mb-0">
+                            <tbody>
+                                <tr><th scope="row">Full Name</th><td>@foundCustomer.FullName</td></tr>
+                                <tr><th scope="row">National ID</th><td>@foundCustomer.NationalId</td></tr>
+                                <tr><th scope="row">Phone Number</th><td>@foundCustomer.PhoneNumber</td></tr>
+                                <tr><th scope="row">Email</th><td>@(foundCustomer.Email ?? "-")</td></tr>
+                            </tbody>
+                        </table>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    // ---- Add customer state ----
+    private CustomersModel newCustomer = new();
+    private GeneralResponse? addResult;
+    private bool isSaving;
+
+    // ---- Lookup state ----
+    private int lookupCustomerId = 1;
+    private CustomerDto? foundCustomer;
+    private string? lookupError;
+    private bool isLoading;
+
+    private async Task HandleAddCustomer()
+    {
+        isSaving = true;
+        addResult = null;
+
+        addResult = await CustomersApi.AddNewCustomerAsync(newCustomer);
+
+        if (addResult.IsSuccess)
+        {
+            newCustomer = new CustomersModel(); // reset the form after a successful save
+        }
+
+        isSaving = false;
+    }
+
+    private async Task HandleGetCustomer()
+    {
+        isLoading = true;
+        lookupError = null;
+        foundCustomer = null;
+
+        try
+        {
+            foundCustomer = await CustomersApi.GetCustomerDetailsAsync(lookupCustomerId);
+            if (foundCustomer is null)
+            {
+                lookupError = "The API did not return a customer.";
+            }
+        }
+        catch (Exception ex)
+        {
+            lookupError = $"Could not reach the API: {ex.Message}";
+        }
+
+        isLoading = false;
+    }
+}
