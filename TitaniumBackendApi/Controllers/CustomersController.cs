@@ -28,7 +28,7 @@ namespace TitaniumBackendApi.Controllers
             if (ModelState.IsValid)
             { 
                  var CheckCustomer = await _Customers.GetCustomerByNationalId(AddedCustomerObject.NationalId);
-                if (CheckCustomer is null)
+                if (CheckCustomer is null)  
                 {
                     await _Customers.AddNewCustomer(AddedCustomerObject);
                     return Ok(new GeneralResponse
@@ -48,7 +48,11 @@ namespace TitaniumBackendApi.Controllers
             }
             else
             {
-                return BadRequest("");
+                return NotFound(new GeneralResponse
+                {
+                    IsSuccess = false,
+                    Message = "Invalid Customer Data"
+                });
             }
         }
 
@@ -71,13 +75,44 @@ namespace TitaniumBackendApi.Controllers
 
 
 
+        [HttpGet("GetCustomersbyName")]
+        public async Task<ActionResult<List<CustomerDto>>> FetchCustomersByName([FromQuery] string CustomerName)
+        {
+            return Ok(await _Customers.GetCustomersByName(CustomerName));
+        }
+
+
+
+        [HttpDelete("DeleteCustomer")]
+        public async Task<ActionResult<GeneralResponse>> DeleteCustomerByNationalId([FromQuery] string NationalId)
+        {
+            var CheckDeletionProcess = await _Customers.DeleteCustomer(NationalId);
+            if (CheckDeletionProcess)
+            {
+                return Ok(new GeneralResponse()
+                {
+                    IsSuccess = true,
+                    Message = "Customer Deleted Successfully"
+                });
+            }
+            else;
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    IsSuccess = false,
+                    Message = "Customer Deletion Failed"
+                });
+            }
+        }
 
 
 
 
 
 
-      
+
+
+
 
 
 

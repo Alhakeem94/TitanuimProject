@@ -15,8 +15,8 @@ namespace TitaniumBackendApi.Interfaces
         Task<CustomerDto> GetCustomerById(int CustomerId);
         Task<GeneralResponse> AddNewCustomer(CustomersModel AddedCustomerObject);
         Task<List<CustomerDto>> getAllCustomers();
-
-
+        Task<List<CustomerDto>> GetCustomersByName(string Name);
+        Task<bool> DeleteCustomer(string NationalId);
     }
 
 
@@ -41,9 +41,23 @@ namespace TitaniumBackendApi.Interfaces
             };
         }
 
+        public async Task<bool> DeleteCustomer(string NationalId)
+        {
+            var CustomerToBeDeleted = await GetCustomerByNationalId(NationalId);
+            if (CustomerToBeDeleted is null)
+            {
+                return false;
+            }else
+            {
+                _Db.CustomersTable.Remove(CustomerToBeDeleted);
+                await _Db.SaveChangesAsync();
+                return true;
+            }
+        }
+
         public async Task<List<CustomerDto>> getAllCustomers()
         {
-            return await _Db.CustomersTable.Select(a=> new CustomerDto
+            return await _Db.CustomersTable.Select(a => new CustomerDto
             {
                 Email = a.Email,
                 FullName = a.FullName,
@@ -79,20 +93,30 @@ namespace TitaniumBackendApi.Interfaces
             var CheckIfNationalIdExists = await _Db.CustomersTable.FirstOrDefaultAsync(a => a.NationalId == Nationalid); // 4ms
             if (CheckIfNationalIdExists is null)
             {
-                return new CustomersModel();
-            }else
+                return null;
+            }
+            else
             {
                 return CheckIfNationalIdExists;
             }
         }
 
+        public async Task<List<CustomerDto>> GetCustomersByName(string Name)
+        {
+            return await _Db.CustomersTable.Where(a => a.FullName.Contains(Name)).Select(a => new CustomerDto
+            {
+                FullName = a.FullName,
+                NationalId = a.NationalId,
+                Email = a.Email,
+                PhoneNumber = a.PhoneNumber
+            })
+            .ToListAsync();
+        }
+
+
+
+
 
 
     }
-
-
-
-
-
-
 }

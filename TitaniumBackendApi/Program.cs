@@ -46,7 +46,7 @@ namespace TitaniumBackendApi
             }
 
 
-            app.UseHttpsRedirection();
+           // app.UseHttpsRedirection();
 
             app.UseCors("FEApp");
 

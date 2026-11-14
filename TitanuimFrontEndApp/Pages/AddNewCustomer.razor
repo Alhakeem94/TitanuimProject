@@ -1,0 +1,65 @@
+@page "/AddNewCustomer"
+@using Shared.Models
+@using Shared.Responses
+@inject HttpClient _httpClient
+@inject ISnackbar Snackbar
+
+<EditForm Model="customersModel" OnValidSubmit="AddCustomer">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-6">
+            <input class="form-control" type="text" placeholder="Customer Name"  @bind-value="customersModel.FullName"/>
+        </div>
+        <div class="col-6">
+            <input class="form-control" type="text" placeholder="Customer Nid" @bind-value="customersModel.NationalId" />
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-6">
+            <input class="form-control" type="text" placeholder="Customer Phone number" @bind-value="customersModel.PhoneNumber" />
+        </div>
+        <div class="col-6">
+            <input class="form-control" type="text" placeholder="Customer Email" @bind-value="customersModel.Email" />
+        </div>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary form-control">Add Customer</button>
+
+</EditForm>
+
+
+
+
+
+
+
+
+@code {
+
+
+    private CustomersModel customersModel {get;set;}= new CustomersModel();
+    public GeneralResponse ResponseMessage { get; set; }
+
+    private async Task AddCustomer()
+    {
+        var SendCustomerToBackend = await _httpClient.PostAsJsonAsync("api/customers/AddNewCustomer", customersModel);
+        ResponseMessage = await SendCustomerToBackend.Content.ReadFromJsonAsync<GeneralResponse>();
+
+        if (ResponseMessage.IsSuccess)
+        {
+            Snackbar.Add(ResponseMessage.Message, Severity.Success);
+            customersModel = new CustomersModel();
+        }
+        else
+        {
+            Snackbar.Add(ResponseMessage.Message, Severity.Error);
+        }
+
+    }
+
+
+
+
+}

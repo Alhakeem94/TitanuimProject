@@ -25,7 +25,7 @@ namespace Shared.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
 
-        public ICollection<Account> CustomerAccounts { get; set; }
+        public ICollection<Account>? CustomerAccounts { get; set; }
 
 
 

@@ -2,8 +2,9 @@
 
 @using System.Net.Http.Json
 @using Shared.DTOs
+@using Shared.Responses
 @inject HttpClient httpClient
-
+@inject ISnackbar Snackbar
 
 
 
@@ -13,33 +14,38 @@
     <h3>We are fetching your data</h3>
 }else
 {
-    <MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <div class="row">
+        <div class="col-4">
+            <input type="text" @bind="_searchString" placeholder="Search..." class="form-control mb-3" />
+        </div>
+        <div class="col-2">
+            <button type="submit" class="btn btn-primary" @onclick="SearchCustomers">Search</button>
+        </div>
+    </div>
+
+
+    
+    <MudTable Items="@Elements.Take(20)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>NationalId</MudTh>
             <MudTh>Phone Number</MudTh>
             <MudTh>Email</MudTh>
+            <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Name">@context.FullName</MudTd>
             <MudTd DataLabel="NationalId">@context.NationalId</MudTd>
             <MudTd DataLabel="Phone Number">@context.PhoneNumber</MudTd>
             <MudTd DataLabel="Email" HideSmall="_hidePosition">@context.Email</MudTd>
+            <MudTd>
+                <MudButton onclick="(()=>DeleteCustomer(context.NationalId))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small">Delete</MudButton>
+                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Update" Color="Color.Info"  Size="Size.Small">Update</MudButton>
+            </MudTd>
         </RowTemplate>
     </MudTable>
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -51,14 +57,48 @@
     public bool IsLoading { get; set; } = true;
     private bool _hidePosition;
     private bool _loading;
+    private string _searchString {get;set;} = "";
 
+    private GeneralResponse generalResponse = new GeneralResponse();
 
 
     protected override async Task OnInitializedAsync()
-    {
-        Elements = await httpClient.GetFromJsonAsync<List<CustomerDto>>("https://localhost:7197/api/Customers/GetAllCustomers");
+    {                                                                   // backend server 192.168.10.50
+        Elements = await httpClient.GetFromJsonAsync<List<CustomerDto>>($"api/Customers/GetAllCustomers");
         IsLoading = false;
     }
+
+
+
+
+    private async Task SearchCustomers()
+    {
+        IsLoading = true;
+        Elements = await httpClient.GetFromJsonAsync<List<CustomerDto>>($"api/Customers/GetCustomersbyName?CustomerName={_searchString}");
+        IsLoading = false;
+
+    }
+
+    private async Task DeleteCustomer(string nationalId)
+    {
+        IsLoading = true;
+        var DeleteRecord = await httpClient.DeleteAsync($"api/Customers/DeleteCustomer?nationalId={nationalId}");   
+        IsLoading = false;
+
+        generalResponse = await DeleteRecord.Content.ReadFromJsonAsync<GeneralResponse>();
+        if(generalResponse.IsSuccess)
+        {
+            Snackbar.Add(generalResponse.Message, Severity.Success);
+            Elements = await httpClient.GetFromJsonAsync<List<CustomerDto>>($"api/Customers/GetAllCustomers");
+        }
+        else
+        {
+            // Handle error case, e.g., show a message to the user
+            Snackbar.Add(generalResponse.Message, Severity.Error);
+        }
+
+    }
+
 
 
 
