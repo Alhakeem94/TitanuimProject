@@ -1,0 +1,69 @@
+@page "/EditCustomer/{nid}"
+@using Shared.DTOs
+
+@inject HttpClient httpClient
+@inject ISnackbar _Sb
+
+
+<h5>the Param is : @nid</h5>
+
+<EditForm Model="customer" OnValidSubmit="EditCustomer">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="row">
+        <div class="col-6">
+            <input class="form-control" type="text" placeholder="Customer Name"  @bind-value="customer.FullName"/>
+        </div>
+        <div class="col-6">
+            <input class="form-control" type="text" placeholder="Customer Nid" @bind-value="customer.NationalId" />
+        </div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-6">
+            <input class="form-control" type="text" placeholder="Customer Phone number" @bind-value="customer.PhoneNumber" />
+        </div>
+        <div class="col-6">
+            <input class="form-control" type="text" placeholder="Customer Email" @bind-value="customer.Email" />
+        </div>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary form-control">Edit Customer</button>
+
+</EditForm>
+
+
+
+
+
+
+@code{
+
+    [Parameter]
+    public string nid { get; set; }
+    public CustomerDto customer { get; set; } = new CustomerDto();
+
+    protected override async Task OnInitializedAsync()
+    {
+        customer = await httpClient.GetFromJsonAsync<CustomerDto>($"api/Customers/GetCustomerDetailsByNid?NationalId={nid}");
+    }
+
+
+
+
+
+    private async Task EditCustomer()
+    {
+        var response = await httpClient.PutAsJsonAsync($"api/Customers/UpdateCustomerDetails", customer);
+       var content = await response.Content.ReadAsStringAsync();
+        if (response.IsSuccessStatusCode)
+        {
+            _Sb.Add(content, Severity.Success);
+        }
+        else
+        {
+            _Sb.Add(content, Severity.Error);
+        }
+    }
+
+}

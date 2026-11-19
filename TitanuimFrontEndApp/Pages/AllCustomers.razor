@@ -5,14 +5,15 @@
 @using Shared.Responses
 @inject HttpClient httpClient
 @inject ISnackbar Snackbar
-
+@inject NavigationManager _Nav
 
 
 @if(IsLoading)
 {
     <MudProgressCircular Color="Color.Default" Indeterminate="true" />
     <h3>We are fetching your data</h3>
-}else
+}
+else
 {
     <div class="row">
         <div class="col-4">
@@ -40,7 +41,7 @@
             <MudTd DataLabel="Email" HideSmall="_hidePosition">@context.Email</MudTd>
             <MudTd>
                 <MudButton onclick="(()=>DeleteCustomer(context.NationalId))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small">Delete</MudButton>
-                <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Update" Color="Color.Info"  Size="Size.Small">Update</MudButton>
+                <MudButton onclick="(()=>EditCustomer(context.NationalId))" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Update" Color="Color.Info"  Size="Size.Small">Update</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -98,7 +99,10 @@
         }
 
     }
-
+    private void EditCustomer(string NationalId)
+    {
+        _Nav.NavigateTo($"/EditCustomer/{NationalId}");
+    }
 
 
 

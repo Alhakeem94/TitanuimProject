@@ -22,13 +22,13 @@ namespace TitaniumBackendApi.Controllers
 
 
 
-        [HttpPost("AddNewCustomer")]    
-        public async Task<ActionResult<GeneralResponse>> AddNewCustomer([FromBody]CustomersModel AddedCustomerObject)
+        [HttpPost("AddNewCustomer")]
+        public async Task<ActionResult<GeneralResponse>> AddNewCustomer([FromBody] CustomersModel AddedCustomerObject)
         {
             if (ModelState.IsValid)
-            { 
-                 var CheckCustomer = await _Customers.GetCustomerByNationalId(AddedCustomerObject.NationalId);
-                if (CheckCustomer is null)  
+            {
+                var CheckCustomer = await _Customers.GetCustomerByNationalId(AddedCustomerObject.NationalId);
+                if (CheckCustomer is null)
                 {
                     await _Customers.AddNewCustomer(AddedCustomerObject);
                     return Ok(new GeneralResponse
@@ -59,7 +59,7 @@ namespace TitaniumBackendApi.Controllers
 
 
         [HttpGet("GetCustomerDetails")]
-        public async Task<ActionResult<CustomerDto>> FetchCustomerFromDatabase([FromQuery]int CustomerId)
+        public async Task<ActionResult<CustomerDto>> FetchCustomerFromDatabase([FromQuery] int CustomerId)
         {
             return Ok(await _Customers.GetCustomerById(CustomerId));
         }
@@ -108,8 +108,35 @@ namespace TitaniumBackendApi.Controllers
 
 
 
+        [HttpGet("GetCustomerDetailsByNid")]
+        public async Task<ActionResult<CustomerDto>> FetchCustomerFromDatabaseByNid([FromQuery] string NationalId)
+        {
+
+            var CustomerDetails = await _Customers.GetCustomerByNationalId(NationalId);
+
+            var Dto = new CustomerDto
+            {
+                Id = CustomerDetails.Id,
+                FullName = CustomerDetails.FullName,
+                NationalId = CustomerDetails.NationalId,
+                Email = CustomerDetails.Email,
+                PhoneNumber = CustomerDetails.PhoneNumber
+            };
+
+            return Ok(Dto);
+
+        }
 
 
+
+
+        [HttpPut("UpdateCustomerDetails")]
+        public async Task<ActionResult<GeneralResponse>> UpdateCustomerDetails([FromBody] CustomerDto UpdatedCustomerObject)
+        {
+            
+             return Ok(await _Customers.UpdateCustomerDetails(UpdatedCustomerObject));
+          
+        }
 
 
 

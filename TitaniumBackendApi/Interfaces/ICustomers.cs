@@ -17,6 +17,8 @@ namespace TitaniumBackendApi.Interfaces
         Task<List<CustomerDto>> getAllCustomers();
         Task<List<CustomerDto>> GetCustomersByName(string Name);
         Task<bool> DeleteCustomer(string NationalId);
+        Task<GeneralResponse> UpdateCustomerDetails(CustomerDto UpdatedCustomerObject);
+
     }
 
 
@@ -47,7 +49,8 @@ namespace TitaniumBackendApi.Interfaces
             if (CustomerToBeDeleted is null)
             {
                 return false;
-            }else
+            }
+            else
             {
                 _Db.CustomersTable.Remove(CustomerToBeDeleted);
                 await _Db.SaveChangesAsync();
@@ -113,10 +116,55 @@ namespace TitaniumBackendApi.Interfaces
             .ToListAsync();
         }
 
+        public async Task<GeneralResponse> UpdateCustomerDetails(CustomerDto UpdatedCustomerObject)
+        {
+            var OldData = await _Db.CustomersTable.FirstOrDefaultAsync(a => a.Id == UpdatedCustomerObject.Id);
+            if (OldData.NationalId != UpdatedCustomerObject.NationalId)
+            {
+                var IsNidInDb = await _Db.CustomersTable.AnyAsync(a => a.NationalId == UpdatedCustomerObject.NationalId);
+                if (IsNidInDb)
+                {
+                    return new GeneralResponse
+                    {
+                        IsSuccess = false,
+                        Message = "National Id Already Exists"
+                    };
+                }
+                else
+                {
+                    OldData.FullName = UpdatedCustomerObject.FullName;
+                    OldData.Email = UpdatedCustomerObject.Email;
+                    OldData.PhoneNumber = UpdatedCustomerObject.PhoneNumber;
+                    OldData.NationalId = UpdatedCustomerObject.NationalId;
+
+                    _Db.CustomersTable.Update(OldData);
+                    await _Db.SaveChangesAsync();
+                    return new GeneralResponse
+                    {
+                        IsSuccess = true,
+                        Message = "Customer Details Updated Successfully"
+                    };
+                }
+            }
+            else
+            {
+                 OldData.FullName = UpdatedCustomerObject.FullName;
+                    OldData.Email = UpdatedCustomerObject.Email;
+                    OldData.PhoneNumber = UpdatedCustomerObject.PhoneNumber;
+                    OldData.NationalId = UpdatedCustomerObject.NationalId;
+
+                    _Db.CustomersTable.Update(OldData);
+                    await _Db.SaveChangesAsync();
+                    return new GeneralResponse
+                    {
+                        IsSuccess = true,
+                        Message = "Customer Details Updated Successfully"
+                    };
+            }
+           
 
 
 
-
-
+        }
     }
 }
